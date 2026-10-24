@@ -146,32 +146,21 @@ iframe{display:block;width:100%;height:100%;border:0}
 'use strict';
 const $ = id => document.getElementById(id);
 const TITULO = document.title;
-const TIEMPO_LIMITE = 12000; // ms antes de ofrecer "Reintentar" / "Abrir en pestaña nueva"
-// Si el portal se aloja en el mismo dominio que las herramientas, allow-scripts + allow-same-origin aísla poco.
+const TIEMPO_LIMITE = 12000;
 const SANDBOX = 'allow-scripts allow-forms allow-same-origin allow-modals allow-downloads allow-popups';
-const PERMISOS = 'clipboard-read; clipboard-write'; // deja solo lo que las herramientas necesiten
-const BASE = 'https://luisgarcia-idat.github.io/';
+const PERMISOS = 'clipboard-read; clipboard-write';
+const BASE = 'https://lattis-pro.github.io/';
 
-// Para agregar una herramienta basta una línea: genera su pestaña, su panel y su iframe.
 const MODULOS = [
-  { id: 'convenios', label: 'Convenios Públicos', icono: 'i-calc',   url: BASE + 'Simulador-Convenios/' },
-  { id: 'essalud',   label: 'EsSalud',            icono: 'i-plus',   url: BASE + 'Essalud-Calculadora/' },
-  { id: 'formatos',  label: 'Formatos IA',        icono: 'i-doc',    url: 'formatos-ia-convenios-publicos.html' }, // archivo hermano: súbelo junto a este index.html
-  { id: 'tutelados', label: 'Tutelados',          icono: 'i-shield', url: BASE + 'tutelados/' },
+  { id: 'convenios', label: 'Convenios Públicos', icono: 'i-calc',   url: BASE + 'CalcConvenios/' },
+  { id: 'essalud',   label: 'EsSalud',            icono: 'i-plus',   url: BASE + 'CalcEssalud/' },
   { id: 'filtro',    label: 'Módulo Filtro',      icono: 'i-filter', url: BASE + 'ModuloFiltro/' },
-  { id: 'cem',       label: 'Capacitación CEM',   icono: 'i-board',  url: BASE + 'Capacitaci-nResumendeCargaCrediticia/' },
-  { id: 'envio',     label: 'Orden de Envío',     icono: 'i-send',   url: BASE + 'ordendeenvio/' }
+  { id: 'cem',       label: 'Filtro CEM',         icono: 'i-board',  url: BASE + 'FiltroCem/' },
+  { id: 'formatos',  label: 'Formatos IA',        icono: 'i-doc',    url: BASE + 'FormatosIA/' }
 ];
 const ids = MODULOS.map(m => m.id);
 const porId = Object.fromEntries(MODULOS.map(m => [m.id, m]));
 
-/* ---------- AUTENTICACIÓN ----------
-   Único punto de acceso. HOY: validación de demostración en el navegador; NO es seguridad
-   (cualquiera puede leer estas claves en el código y las herramientas siguen siendo públicas).
-   DESPUÉS: reemplaza el cuerpo por una llamada a tu servidor o SSO y devuelve { ok, usuario, rol }:
-     const r = await fetch('/api/login', { method: 'POST', credentials: 'include',
-       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario, clave }) });
-     return r.ok ? { ok: true, ...(await r.json()) } : { ok: false }; */
 const CUENTAS_DEMO = [
   { usuario: 'admin',  clave: 'bcp2026',     rol: 'admin' },
   { usuario: 'asesor', clave: 'camargo2026', rol: 'asesor' }
@@ -187,7 +176,6 @@ const ico = id => '<svg class="i" aria-hidden="true"><use href="#' + id + '"/></
 const idHash = () => location.hash.slice(1);
 const abrirExterno = () => window.open(porId[actual].url, '_blank', 'noopener,noreferrer');
 
-// Un panel con su iframe por herramienta. El iframe no carga hasta que se abre la pestaña por primera vez.
 function construir() {
   const tabs = $('tabs'), cont = $('paneles');
   tabs.replaceChildren(); cont.replaceChildren(); paneles = {};
@@ -210,7 +198,6 @@ function construir() {
   });
 }
 
-// Carga (o recarga) una herramienta con indicador y aviso si tarda demasiado.
 function cargar(id) {
   const p = paneles[id], m = porId[id];
   clearTimeout(p.t); p.cargando = true; p.iniciado = true;
@@ -222,7 +209,6 @@ function cargar(id) {
   p.f.src = m.url;
 }
 
-// Cambia de pestaña sin recargar: los demás iframes quedan ocultos y conservan su estado.
 function activar(id, actualizarHash = true) {
   if (!ids.includes(id)) id = ids[0];
   actual = id;
@@ -247,7 +233,7 @@ function entrar(r) {
 function salir() {
   Object.values(paneles).forEach(p => clearTimeout(p.t));
   sesion = null; actual = null; paneles = {};
-  $('tabs').replaceChildren(); $('paneles').replaceChildren(); // descarta los iframes y sus datos
+  $('tabs').replaceChildren(); $('paneles').replaceChildren(); 
   $('app').hidden = true; $('login').hidden = false;
   $('inpPass').value = ''; document.title = TITULO; $('inpUser').focus();
 }
