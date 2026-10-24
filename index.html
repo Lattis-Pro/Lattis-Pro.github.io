@@ -17,6 +17,19 @@ button{cursor:pointer;border:0;background:none}
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 .i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
+/* Marca de Agua */
+.watermark {
+    position: fixed;
+    inset: 0;
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwLd1ynG_VPVvtVimWalYNse5WpqgMwQFPQQTvoOOwGuGMc3OK4-xZzNk&s=10'); /* Sube tu imagen como logo.png al repositorio */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 40%;
+    opacity: 0.08; /* Opacidad tenue */
+    pointer-events: none; /* Crucial: permite hacer clics a través de la imagen */
+    z-index: 9999; /* Sobrepone la marca en todos los paneles */
+}
+
 /* Login */
 .login{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(2,6,23,.9);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .card{position:relative;overflow:hidden;width:100%;max-width:28rem;padding:2rem;background:#fff;border:1px solid var(--s200);border-radius:1.5rem;box-shadow:0 25px 50px -12px rgba(0,0,0,.4)}
@@ -80,6 +93,8 @@ iframe{display:block;width:100%;height:100%;border:0}
 </style>
 </head>
 <body>
+
+<div class="watermark" aria-hidden="true"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
@@ -179,9 +194,15 @@ const MODULOS = [
 const ids = MODULOS.map(m => m.id);
 const porId = Object.fromEntries(MODULOS.map(m => [m.id, m]));
 
+// --- USUARIOS CONFIGURADOS ---
 const CUENTAS_DEMO = [
-  { usuario: 'admin',  clave: 'bcp2026',     rol: 'admin' },
-  { usuario: 'asesor', clave: 'camargo2026', rol: 'asesor' }
+  { usuario: 'admin',    clave: 'bcp2026',   rol: 'admin' },
+  { usuario: 'asesor20', clave: 'camargo20', rol: 'asesor' },
+  { usuario: 'asesor26', clave: 'camargo26', rol: 'asesor' },
+  { usuario: 'asesor27', clave: 'camargo27', rol: 'asesor' },
+  { usuario: 'asesor28', clave: 'camargo28', rol: 'asesor' },
+  { usuario: 'asesor29', clave: 'camargo29', rol: 'asesor' },
+  { usuario: 'asesor30', clave: 'camargo30', rol: 'asesor' }
 ];
 
 async function autenticar(usuario, clave) {
