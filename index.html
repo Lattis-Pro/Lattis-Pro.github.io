@@ -169,11 +169,15 @@ const TIEMPO_LIMITE = 12000;
 const SANDBOX = 'allow-scripts allow-forms allow-same-origin allow-modals allow-downloads allow-popups';
 const PERMISOS = 'clipboard-read; clipboard-write';
 
-const URL_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT4nnIgEOm9vPje35yRT9r1hvnM5ZDVEZdWTS_8z4MT5zr8QJn5CCyjZo1S8mOwXPMSEDijKr_1KEt3/pub?gid=0&single=true&output=csv';
-
-let MODULOS = [];
-let ids = [];
-let porId = {};
+const MODULOS = [
+  { id: 'convenios', label: 'Convenios Públicos', icono: 'i-calc',   url: 'https://lattis-pro.github.io/CalcConvenios/' },
+  { id: 'essalud',   label: 'EsSalud',            icono: 'i-plus',   url: 'https://lattis-pro.github.io/CalcEssalud/' },
+  { id: 'filtro',    label: 'Módulo Filtro',      icono: 'i-filter', url: 'https://lattis-pro.github.io/ModuloFiltro/' },
+  { id: 'cem',       label: 'Filtro CEM',         icono: 'i-board',  url: 'https://lattis-pro.github.io/FiltroCem/' },
+  { id: 'formatos',  label: 'Formatos IA',        icono: 'i-doc',    url: 'https://lattis-pro.github.io/FormatosIA/' }
+];
+const ids = MODULOS.map(m => m.id);
+const porId = Object.fromEntries(MODULOS.map(m => [m.id, m]));
 
 const CUENTAS_DEMO = [
   { usuario: 'admin',  clave: 'bcp2026',     rol: 'admin' },
@@ -183,25 +187,6 @@ const CUENTAS_DEMO = [
 async function autenticar(usuario, clave) {
   const c = CUENTAS_DEMO.find(x => x.usuario === usuario.toLowerCase() && x.clave === clave);
   return c ? { ok: true, usuario: c.usuario, rol: c.rol } : { ok: false };
-}
-
-async function cargarDatosSheets() {
-  try {
-    const res = await fetch(URL_SHEET + '&t=' + new Date().getTime()); 
-    const csv = await res.text();
-    const lineas = csv.split('\n').filter(l => l.trim().length > 0);
-    
-    MODULOS = lineas.slice(1).map(linea => {
-      const col = linea.split(',');
-      return { id: col[0].trim(), label: col[1].trim(), icono: col[2].trim(), url: col[3].trim() };
-    });
-    
-    ids = MODULOS.map(m => m.id);
-    porId = Object.fromEntries(MODULOS.map(m => [m.id, m]));
-    return true;
-  } catch (error) {
-    return false;
-  }
 }
 
 let sesion = null, actual = null, paneles = {};
@@ -273,16 +258,11 @@ function salir() {
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const err = $('loginError'), btn = $('btnLogin');
-  err.hidden = true; btn.disabled = true; btn.textContent = 'Verificando y cargando datos...';
+  err.hidden = true; btn.disabled = true; btn.textContent = 'Verificando...';
   try {
     const r = await autenticar($('inpUser').value.trim(), $('inpPass').value.trim());
     if (r && r.ok) {
-        const datosCargados = await cargarDatosSheets();
-        if (datosCargados) {
-            entrar(r);
-        } else {
-            err.textContent = 'Error al leer el archivo de Google Sheets.'; err.hidden = false;
-        }
+        entrar(r);
     } else { 
         err.textContent = 'Usuario o contraseña incorrectos.'; err.hidden = false; $('inpPass').select(); 
     }
